@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/kyc/:match*",
+      "destination": "https://vitalvida-kyc.vercel.app/:match*"
+    }
+  ]
+}
