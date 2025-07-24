@@ -165,7 +165,7 @@ const InternalAdminPanel = () => {
     
     return (
       <Badge className={statusStyles[status]}>
-        {status.replace('_', ' ').toUpperCase()}
+        {status.replace(/_/g, ' ').toUpperCase()}
       </Badge>
     );
   };
@@ -396,7 +396,7 @@ const InternalAdminPanel = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Processing Time</span>
-                    <span className="font-medium">< 2 min</span>
+                    <span className="font-medium">&lt; 2 min</span>
                   </div>
                 </div>
               </CardContent>
