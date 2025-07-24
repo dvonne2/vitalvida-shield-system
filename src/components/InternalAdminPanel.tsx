@@ -154,31 +154,31 @@ const InternalAdminPanel = () => {
     { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+1.5%" },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      "submitted": "bg-blue-50 text-blue-700 border-blue-200",
-      "waiting_guarantor1": "bg-yellow-50 text-yellow-700 border-yellow-200",
-      "waiting_guarantor2": "bg-orange-50 text-orange-700 border-orange-200",
-      "approved": "bg-green-50 text-green-700 border-green-200",
-      "rejected": "bg-red-50 text-red-700 border-red-200"
+  const getStatusBadge = (status: Application["status"]) => {
+    const statusStyles: Record<Application["status"], string> = {
+      submitted: "bg-blue-50 text-blue-700 border-blue-200",
+      waiting_guarantor1: "bg-yellow-50 text-yellow-700 border-yellow-200",
+      waiting_guarantor2: "bg-orange-50 text-orange-700 border-orange-200",
+      approved: "bg-green-50 text-green-700 border-green-200",
+      rejected: "bg-red-50 text-red-700 border-red-200"
     };
     
     return (
-      <Badge className={styles[status as keyof typeof styles]}>
+      <Badge className={statusStyles[status]}>
         {status.replace('_', ' ').toUpperCase()}
       </Badge>
     );
   };
 
   const getVerdictBadge = (verdict: Application["aiVerdict"]) => {
-    const styles = {
-      "processing": "bg-blue-50 text-blue-700 border-blue-200",
-      "approved": "bg-green-50 text-green-700 border-green-200",
-      "rejected": "bg-red-50 text-red-700 border-red-200"
+    const verdictStyles: Record<Application["aiVerdict"]["status"], string> = {
+      processing: "bg-blue-50 text-blue-700 border-blue-200",
+      approved: "bg-green-50 text-green-700 border-green-200",
+      rejected: "bg-red-50 text-red-700 border-red-200"
     };
     
     return (
-      <Badge className={styles[verdict.status]}>
+      <Badge className={verdictStyles[verdict.status]}>
         <Bot className="w-3 h-3 mr-1" />
         {verdict.status.toUpperCase()} ({verdict.confidence}%)
       </Badge>
