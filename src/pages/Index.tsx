@@ -3,20 +3,18 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, FileCheck, AlertTriangle, Eye, TrendingUp } from "lucide-react";
-import DARegistration from "@/components/DARegistration";
-import GuarantorValidation from "@/components/GuarantorValidation";
-import AdminDashboard from "@/components/AdminDashboard";
-import RecruiterPortal from "@/components/RecruiterPortal";
+import { Shield, Users, Bot, TrendingUp, CheckCircle } from "lucide-react";
+import AgentApplication from "@/components/AgentApplication";
+import InternalAdminPanel from "@/components/InternalAdminPanel";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("agent-application");
 
   const stats = [
-    { title: "Active DAs", value: "1,247", icon: Users, trend: "+12%" },
-    { title: "Valid Guarantors", value: "892", icon: Shield, trend: "+8%" },
-    { title: "KYC Completed", value: "94.2%", icon: FileCheck, trend: "+2.1%" },
-    { title: "Fraud Blocked", value: "156", icon: AlertTriangle, trend: "-5%" },
+    { title: "Active Agents", value: "1,247", icon: Users, trend: "+12%" },
+    { title: "Auto-Approved", value: "892", icon: CheckCircle, trend: "+8%" },
+    { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+2.1%" },
+    { title: "Processing Time", value: "< 2 min", icon: TrendingUp, trend: "-15%" },
   ];
 
   return (
@@ -31,13 +29,13 @@ const Index = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Vitalvida</h1>
-                <p className="text-xs text-gray-500">KYC & Recruitment Portal</p>
+                <p className="text-xs text-gray-500">AI-Powered Delivery Agent Portal</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                System Secure
+                AI System Active
               </Badge>
             </div>
           </div>
@@ -73,46 +71,32 @@ const Index = () => {
 
         {/* Main Portal */}
         <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+          <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <CardTitle className="flex items-center space-x-2">
-              <Eye className="w-5 h-5" />
-              <span>Zero-Trust KYC Portal</span>
+              <Bot className="w-5 h-5" />
+              <span>AI-Powered Delivery Agent Portal</span>
             </CardTitle>
             <CardDescription className="text-blue-100">
-              Fraud Prevention SOP - No manual overrides permitted
+              Self-service recruitment automation with AI validation
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 rounded-none border-b">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-blue-50">
-                  Overview
+              <TabsList className="grid w-full grid-cols-2 rounded-none border-b">
+                <TabsTrigger value="agent-application" className="data-[state=active]:bg-blue-50">
+                  Agent Application
                 </TabsTrigger>
-                <TabsTrigger value="da-registration" className="data-[state=active]:bg-blue-50">
-                  DA Registration
-                </TabsTrigger>
-                <TabsTrigger value="guarantor" className="data-[state=active]:bg-blue-50">
-                  Guarantor Validation
-                </TabsTrigger>
-                <TabsTrigger value="admin" className="data-[state=active]:bg-blue-50">
-                  Admin Dashboard
+                <TabsTrigger value="internal-admin" className="data-[state=active]:bg-blue-50">
+                  Internal Admin
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="p-6">
-                <RecruiterPortal />
+              <TabsContent value="agent-application" className="p-6">
+                <AgentApplication />
               </TabsContent>
 
-              <TabsContent value="da-registration" className="p-6">
-                <DARegistration />
-              </TabsContent>
-
-              <TabsContent value="guarantor" className="p-6">
-                <GuarantorValidation />
-              </TabsContent>
-
-              <TabsContent value="admin" className="p-6">
-                <AdminDashboard />
+              <TabsContent value="internal-admin" className="p-6">
+                <InternalAdminPanel />
               </TabsContent>
             </Tabs>
           </CardContent>
