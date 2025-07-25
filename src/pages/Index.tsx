@@ -3,19 +3,12 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, Bot, TrendingUp, CheckCircle } from "lucide-react";
+import { Shield, Bot } from "lucide-react";
 import AgentApplication from "@/components/AgentApplication";
 import ProtectedAdminPanel from "@/components/ProtectedAdminPanel";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("agent-application");
-
-  const stats = [
-    { title: "Active Agents", value: "1,247", icon: Users, trend: "+12%" },
-    { title: "Auto-Approved", value: "892", icon: CheckCircle, trend: "+8%" },
-    { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+2.1%" },
-    { title: "Processing Time", value: "< 2 min", icon: TrendingUp, trend: "-15%" },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -43,32 +36,6 @@ const Index = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <div className="flex items-center mt-1">
-                        <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
-                        <span className="text-xs text-green-600">{stat.trend}</span>
-                      </div>
-                    </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-blue-600" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
         {/* Main Portal */}
         <Card className="shadow-lg">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">

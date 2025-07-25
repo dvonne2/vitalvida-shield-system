@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +54,22 @@ interface Application {
 const InternalAdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Admin-only metrics dashboard data
+  const adminStats = [
+    { title: "Active Agents", value: "1,247", icon: Users, trend: "+12%" },
+    { title: "Auto-Approved", value: "892", icon: CheckCircle, trend: "+8%" },
+    { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+2.1%" },
+    { title: "Processing Time", value: "< 2 min", icon: TrendingUp, trend: "-15%" },
+  ];
+
+  // Application management stats
+  const applicationStats = [
+    { title: "Total Applications", value: "247", icon: Users, trend: "+12%" },
+    { title: "Auto-Approved", value: "89", icon: CheckCircle, trend: "+8%" },
+    { title: "Pending Review", value: "15", icon: Clock, trend: "-2%" },
+    { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+1.5%" },
+  ];
 
   // Mock data for demonstration
   const applications: Application[] = [
@@ -147,13 +162,6 @@ const InternalAdminPanel = () => {
     }
   ];
 
-  const stats = [
-    { title: "Total Applications", value: "247", icon: Users, trend: "+12%" },
-    { title: "Auto-Approved", value: "89", icon: CheckCircle, trend: "+8%" },
-    { title: "Pending Review", value: "15", icon: Clock, trend: "-2%" },
-    { title: "AI Accuracy", value: "96.2%", icon: Bot, trend: "+1.5%" },
-  ];
-
   const getStatusBadge = (status: Application["status"]) => {
     const statusStyles: Record<Application["status"], string> = {
       submitted: "bg-blue-50 text-blue-700 border-blue-200",
@@ -217,9 +225,44 @@ const InternalAdminPanel = () => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Admin-Only Metrics Dashboard */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">System Overview</h3>
+          <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+            <Shield className="w-3 h-3 mr-1" />
+            Admin Access Only
+          </Badge>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {adminStats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                      <div className="flex items-center mt-1">
+                        <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
+                        <span className="text-xs text-green-600">{stat.trend}</span>
+                      </div>
+                    </div>
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Icon className="w-6 h-6 text-blue-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Application Management Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
+        {applicationStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <Card key={index} className="hover:shadow-lg transition-shadow">
