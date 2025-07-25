@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Upload, CheckCircle, AlertCircle, User, Shield, Phone, Mail, MapPin, FileText, Clock, CheckSquare } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle, User, Shield, Phone, Mail, MapPin, FileText, Clock, CheckSquare, Rocket, House, MapPinIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GuarantorData {
@@ -193,9 +192,19 @@ const AgentApplication = () => {
   const getStepTitle = () => {
     switch (currentStep) {
       case 1: return "Basic Personal Info";
-      case 2: return "Delivery Readiness & Self-Disqualification";
+      case 2: return "Delivery Agent Readiness Assessment";
       case 3: return "Document Upload";
       case 4: return "Guarantor Details";
+      default: return "";
+    }
+  };
+
+  const getStepDescription = () => {
+    switch (currentStep) {
+      case 1: return "Let's start with your basic information";
+      case 2: return "Help us understand if you're ready to start delivering with Vitalvida";
+      case 3: return "Upload your identification documents";
+      case 4: return "Provide details for your two guarantors";
       default: return "";
     }
   };
@@ -224,18 +233,37 @@ const AgentApplication = () => {
         {/* Main Application Form */}
         <div className="lg:col-span-3">
           <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                {getStepIcon()}
-                <span>Step {currentStep}: {getStepTitle()}</span>
-              </CardTitle>
-              <CardDescription>
-                {currentStep === 1 && "Let's start with your basic information"}
-                {currentStep === 2 && "Please answer these questions honestly to ensure you're ready"}
-                {currentStep === 3 && "Upload your identification documents"}
-                {currentStep === 4 && "Provide details for your two guarantors"}
-              </CardDescription>
-            </CardHeader>
+            {/* Step 2 Header */}
+            {currentStep === 2 && (
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <CardTitle className="flex items-center space-x-2">
+                  <CheckSquare className="w-5 h-5" />
+                  <span>Step 2: Delivery Agent Readiness Assessment</span>
+                </CardTitle>
+                <CardDescription className="text-blue-100">
+                  Help us understand if you're ready to start delivering with Vitalvida
+                </CardDescription>
+                <div className="mt-4">
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div className="bg-white h-2 rounded-full transition-all duration-300" style={{ width: '25%' }}></div>
+                  </div>
+                </div>
+              </CardHeader>
+            )}
+
+            {/* Other Steps Header */}
+            {currentStep !== 2 && (
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  {getStepIcon()}
+                  <span>Step {currentStep}: {getStepTitle()}</span>
+                </CardTitle>
+                <CardDescription>
+                  {getStepDescription()}
+                </CardDescription>
+              </CardHeader>
+            )}
+
             <CardContent className="space-y-6">
               {/* Step 1: Basic Personal Info */}
               {currentStep === 1 && (
@@ -297,118 +325,187 @@ const AgentApplication = () => {
                 </div>
               )}
 
-              {/* Step 2: Delivery Readiness */}
+              {/* Step 2: New Redesigned Delivery Readiness */}
               {currentStep === 2 && (
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-base font-medium">Do you have a smartphone? *</Label>
-                      <RadioGroup value={formData.hasSmartphone} onValueChange={(value) => handleInputChange("hasSmartphone", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="smartphone-yes" />
-                          <Label htmlFor="smartphone-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="smartphone-no" />
-                          <Label htmlFor="smartphone-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                <div className="space-y-8">
+                  {/* Essential Requirements Section */}
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-3">
+                      <Rocket className="w-6 h-6 text-blue-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Essential Requirements</h3>
                     </div>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <Label className="text-base font-medium text-slate-700">
+                          Do you have a smartphone? <span className="text-red-500">*</span>
+                        </Label>
+                        <RadioGroup 
+                          value={formData.hasSmartphone} 
+                          onValueChange={(value) => handleInputChange("hasSmartphone", value)}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="yes" id="smartphone-yes" />
+                            <Label htmlFor="smartphone-yes" className="cursor-pointer">Yes</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="no" id="smartphone-no" />
+                            <Label htmlFor="smartphone-no" className="cursor-pointer">No</Label>
+                          </div>
+                        </RadioGroup>
+                        <p className="text-sm text-slate-600 mt-2 italic">Required for receiving delivery requests and navigation</p>
+                      </div>
 
-                    <div>
-                      <Label className="text-base font-medium">Do you have a motorcycle, bicycle, or car? *</Label>
-                      <RadioGroup value={formData.hasVehicle} onValueChange={(value) => handleInputChange("hasVehicle", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="vehicle-yes" />
-                          <Label htmlFor="vehicle-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="vehicle-no" />
-                          <Label htmlFor="vehicle-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <Label className="text-base font-medium text-slate-700">
+                          Do you have reliable transportation? <span className="text-red-500">*</span>
+                        </Label>
+                        <RadioGroup 
+                          value={formData.hasVehicle} 
+                          onValueChange={(value) => handleInputChange("hasVehicle", value)}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="yes" id="vehicle-yes" />
+                            <Label htmlFor="vehicle-yes" className="cursor-pointer">Yes (motorcycle, bicycle, or car)</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="no" id="vehicle-no" />
+                            <Label htmlFor="vehicle-no" className="cursor-pointer">No</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <Label className="text-base font-medium text-slate-700">
+                          Do you have a valid Driver's License? <span className="text-red-500">*</span>
+                        </Label>
+                        <RadioGroup 
+                          value={formData.hasDriversLicense} 
+                          onValueChange={(value) => handleInputChange("hasDriversLicense", value)}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="yes" id="license-yes" />
+                            <Label htmlFor="license-yes" className="cursor-pointer">Yes</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="no" id="license-no" />
+                            <Label htmlFor="license-no" className="cursor-pointer">No</Label>
+                          </div>
+                        </RadioGroup>
+                        <p className="text-sm text-slate-600 mt-2 italic">Required for vehicle operation and identity verification</p>
+                      </div>
                     </div>
+                  </div>
 
-                    <div>
-                      <Label className="text-base font-medium">Do you have a Driver's License? *</Label>
-                      <RadioGroup value={formData.hasDriversLicense} onValueChange={(value) => handleInputChange("hasDriversLicense", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="license-yes" />
-                          <Label htmlFor="license-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="license-no" />
-                          <Label htmlFor="license-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                  {/* Storage & Communication Section */}
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-3">
+                      <House className="w-6 h-6 text-blue-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Storage & Communication</h3>
                     </div>
+                    
+                    <div className="space-y-4">
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <Label className="text-base font-medium text-slate-700">
+                          Can you safely store products at your location? <span className="text-red-500">*</span>
+                        </Label>
+                        <RadioGroup 
+                          value={formData.canHouseProducts} 
+                          onValueChange={(value) => handleInputChange("canHouseProducts", value)}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="yes" id="house-yes" />
+                            <Label htmlFor="house-yes" className="cursor-pointer">Yes</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="no" id="house-no" />
+                            <Label htmlFor="house-no" className="cursor-pointer">No</Label>
+                          </div>
+                        </RadioGroup>
+                        <p className="text-sm text-slate-600 mt-2 italic">Secure storage space needed for inventory management</p>
+                      </div>
 
-                    <div>
-                      <Label className="text-base font-medium">Are you able to house our products at your house or office? *</Label>
-                      <RadioGroup value={formData.canHouseProducts} onValueChange={(value) => handleInputChange("canHouseProducts", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="house-yes" />
-                          <Label htmlFor="house-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="house-no" />
-                          <Label htmlFor="house-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                        <Label className="text-base font-medium text-slate-700">
+                          Are you comfortable using our Delivery Agent Portal? <span className="text-red-500">*</span>
+                        </Label>
+                        <RadioGroup 
+                          value={formData.willUsePortal} 
+                          onValueChange={(value) => handleInputChange("willUsePortal", value)}
+                          className="mt-3"
+                        >
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="yes" id="portal-yes" />
+                            <Label htmlFor="portal-yes" className="cursor-pointer">Yes</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                            <RadioGroupItem value="no" id="portal-no" />
+                            <Label htmlFor="portal-no" className="cursor-pointer">No</Label>
+                          </div>
+                        </RadioGroup>
+                        <p className="text-sm text-slate-600 mt-2 italic">Our portal handles updates, communications, and payment tracking</p>
+                      </div>
                     </div>
+                  </div>
 
-                    <div>
-                      <Label className="text-base font-medium">Are you willing to use the Delivery Agent Portal for updates and communication? *</Label>
-                      <RadioGroup value={formData.willUsePortal} onValueChange={(value) => handleInputChange("willUsePortal", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="portal-yes" />
-                          <Label htmlFor="portal-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="portal-no" />
-                          <Label htmlFor="portal-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                  {/* Compensation Highlight */}
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+                    <div className="flex items-center space-x-2 text-amber-900 font-semibold mb-3">
+                      <span className="text-lg">💰</span>
+                      <span>Compensation Structure</span>
                     </div>
-
-                    <div>
-                      <Label className="text-base font-medium">Are you aware that we only pay ₦1,500 for you to go pick up goods and return home? *</Label>
-                      <RadioGroup value={formData.aware1500Payment} onValueChange={(value) => handleInputChange("aware1500Payment", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="payment1500-yes" />
-                          <Label htmlFor="payment1500-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="payment1500-no" />
-                          <Label htmlFor="payment1500-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                    <div className="text-amber-800 space-y-1">
+                      <div>• <strong>₦1,500</strong> per pickup and return trip</div>
+                      <div>• <strong>Maximum ₦2,500</strong> per delivery</div>
+                      <div>• Weekly payments via our portal</div>
                     </div>
+                  </div>
 
-                    <div>
-                      <Label className="text-base font-medium">Are you aware that we do not pay more than ₦2,500 per delivery? *</Label>
-                      <RadioGroup value={formData.aware2500MaxPayment} onValueChange={(value) => handleInputChange("aware2500MaxPayment", value)}>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="payment2500-yes" />
-                          <Label htmlFor="payment2500-yes">Yes</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="payment2500-no" />
-                          <Label htmlFor="payment2500-no">No</Label>
-                        </div>
-                      </RadioGroup>
+                  {/* Delivery Areas Section */}
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-3">
+                      <MapPinIcon className="w-6 h-6 text-blue-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Delivery Areas</h3>
                     </div>
-
-                    <div>
-                      <Label htmlFor="deliveryCities">Which cities in your state would you like to deliver in? *</Label>
+                    
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
+                      <Label htmlFor="deliveryCities" className="text-base font-medium text-slate-700">
+                        Which cities would you like to deliver in? <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         id="deliveryCities"
                         value={formData.deliveryCities}
                         onChange={(e) => handleInputChange("deliveryCities", e.target.value)}
-                        placeholder="e.g. Aba, Umuahia"
+                        placeholder="e.g., Lagos, Abuja, Port Harcourt"
+                        className="mt-3"
                         required
                       />
+                      <p className="text-sm text-slate-600 mt-2 italic">List all cities where you're available to make deliveries</p>
                     </div>
+                  </div>
+
+                  {/* Hidden fields for backward compatibility */}
+                  <div className="hidden">
+                    <RadioGroup 
+                      value={formData.aware1500Payment} 
+                      onValueChange={(value) => handleInputChange("aware1500Payment", "yes")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="payment1500-yes" />
+                      </div>
+                    </RadioGroup>
+                    <RadioGroup 
+                      value={formData.aware2500MaxPayment} 
+                      onValueChange={(value) => handleInputChange("aware2500MaxPayment", "yes")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="payment2500-yes" />
+                      </div>
+                    </RadioGroup>
                   </div>
                 </div>
               )}
@@ -638,19 +735,25 @@ const AgentApplication = () => {
                   variant="outline"
                   onClick={prevStep}
                   disabled={currentStep === 1}
+                  className="px-6 py-2"
                 >
                   Previous
                 </Button>
                 <Button
                   onClick={nextStep}
                   disabled={!isStepValid() || isSubmitting}
+                  className={`px-6 py-2 ${
+                    currentStep === 2 
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      : ""
+                  }`}
                 >
                   {isSubmitting ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>Processing...</span>
                     </div>
-                  ) : currentStep === 4 ? "Submit Application" : "Next"}
+                  ) : currentStep === 4 ? "Submit Application" : currentStep === 2 ? "Continue Assessment" : "Next"}
                 </Button>
               </div>
             </CardContent>
