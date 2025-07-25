@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Users, Bot, TrendingUp, CheckCircle } from "lucide-react";
 import AgentApplication from "@/components/AgentApplication";
-import InternalAdminPanel from "@/components/InternalAdminPanel";
+import ProtectedAdminPanel from "@/components/ProtectedAdminPanel";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("agent-application");
@@ -96,7 +96,7 @@ const Index = () => {
               </TabsContent>
 
               <TabsContent value="internal-admin" className="p-6">
-                <InternalAdminPanel />
+                <ProtectedAdminPanel />
               </TabsContent>
             </Tabs>
           </CardContent>
