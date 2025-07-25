@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Upload, CheckCircle, AlertCircle, User, Shield, Phone, Mail, MapPin, FileText, Clock, CheckSquare, Rocket, House, MapPinIcon } from "lucide-react";
+import { Upload, CheckCircle, AlertCircle, User, Shield, Phone, Mail, MapPin, FileText, Clock, CheckSquare, Rocket, House, MapPinIcon, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GuarantorData {
@@ -39,6 +39,7 @@ interface ApplicationData {
   // Step 3: Documents
   passportPhoto: File | null;
   governmentId: File | null;
+  utilityBill: File | null; // NEW FIELD
   
   // Step 4: Guarantors
   guarantor1: GuarantorData;
@@ -49,6 +50,7 @@ const AgentApplication = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [emailValidation, setEmailValidation] = useState({
     guarantor1: "pending",
     guarantor2: "pending"
@@ -75,11 +77,55 @@ const AgentApplication = () => {
     // Step 3
     passportPhoto: null,
     governmentId: null,
+    utilityBill: null, // NEW FIELD
     
     // Step 4
     guarantor1: { name: "", phone: "", email: "", office: "", idDocument: null, passportPhoto: null },
     guarantor2: { name: "", phone: "", email: "", office: "", idDocument: null, passportPhoto: null }
   });
+
+  const validateFile = (file: File, field: string) => {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload only JPG, PNG, or PDF files.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload files smaller than 5MB.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  const simulateUpload = (field: string) => {
+    setUploadProgress(prev => ({ ...prev, [field]: 0 }));
+    
+    const interval = setInterval(() => {
+      setUploadProgress(prev => {
+        const newProgress = prev[field] + 20;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setUploadProgress(prev => ({ ...prev, [field]: 0 }));
+          }, 1000);
+          return { ...prev, [field]: 100 };
+        }
+        return { ...prev, [field]: newProgress };
+      });
+    }, 200);
+  };
 
   const validateEmail = async (email: string, type: "bank" | "civil") => {
     const isValid = type === "bank" ? 
@@ -127,6 +173,12 @@ const AgentApplication = () => {
   };
 
   const handleFileUpload = (field: string, file: File | null, guarantorType?: string, fileType?: string) => {
+    if (!file) return;
+    
+    if (!validateFile(file, field)) return;
+    
+    simulateUpload(field);
+    
     if (guarantorType && fileType) {
       setFormData(prev => ({
         ...prev,
@@ -137,6 +189,32 @@ const AgentApplication = () => {
       }));
     } else {
       setFormData(prev => ({ ...prev, [field]: file }));
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, field: string, guarantorType?: string, fileType?: string) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFileUpload(field, file, guarantorType, fileType);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const removeFile = (field: string, guarantorType?: string, fileType?: string) => {
+    if (guarantorType && fileType) {
+      setFormData(prev => ({
+        ...prev,
+        [guarantorType]: {
+          ...prev[guarantorType as keyof typeof prev.guarantor1],
+          [fileType]: null
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: null }));
     }
   };
 
@@ -163,7 +241,7 @@ const AgentApplication = () => {
                formData.canHouseProducts && formData.willUsePortal && formData.aware1500Payment && 
                formData.aware2500MaxPayment && formData.deliveryCities;
       case 3:
-        return formData.passportPhoto && formData.governmentId;
+        return formData.passportPhoto && formData.governmentId && formData.utilityBill;
       case 4:
         return formData.guarantor1.name && formData.guarantor1.phone && formData.guarantor1.email && 
                formData.guarantor1.office && formData.guarantor1.idDocument && formData.guarantor1.passportPhoto &&
@@ -219,6 +297,103 @@ const AgentApplication = () => {
     }
   };
 
+  const FileUploadArea = ({ 
+    field, 
+    label, 
+    helpText, 
+    file, 
+    guarantorType, 
+    fileType 
+  }: {
+    field: string;
+    label: string;
+    helpText: string;
+    file: File | null;
+    guarantorType?: string;
+    fileType?: string;
+  }) => {
+    const progress = uploadProgress[field] || 0;
+    const isUploading = progress > 0 && progress < 100;
+    
+    return (
+      <div className="space-y-2">
+        <Label className="text-base font-medium text-slate-700">
+          {label} <span className="text-red-500">*</span>
+        </Label>
+        <div
+          className={`border-2 border-dashed rounded-xl p-6 transition-colors ${
+            file ? 'border-green-300 bg-green-50' : 'border-slate-300 bg-slate-50 hover:border-slate-400'
+          }`}
+          onDrop={(e) => handleDrop(e, field, guarantorType, fileType)}
+          onDragOver={handleDragOver}
+        >
+          {file ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-slate-900">{file.name}</p>
+                    <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => removeFile(field, guarantorType, fileType)}
+                  className="text-red-500 hover:text-red-700 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              {isUploading && (
+                <div className="space-y-2">
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-600">Uploading... {progress}%</p>
+                </div>
+              )}
+              {progress === 100 && (
+                <div className="flex items-center space-x-2 text-green-600">
+                  <CheckCircle className="w-4 h-4" />
+                  <p className="text-sm font-medium">Upload successful!</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center space-y-3">
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
+                <Upload className="w-6 h-6 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-700">Drop files here or click to browse</p>
+                <p className="text-xs text-slate-500 mt-1">{helpText}</p>
+                <p className="text-xs text-slate-400 mt-2">Supported formats: JPG, PNG, PDF • Max size: 5MB</p>
+              </div>
+              <Input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,application/pdf"
+                className="hidden"
+                id={field}
+                onChange={(e) => handleFileUpload(field, e.target.files?.[0] || null, guarantorType, fileType)}
+              />
+              <Label
+                htmlFor={field}
+                className="inline-flex items-center px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors"
+              >
+                Choose File
+              </Label>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
@@ -251,8 +426,26 @@ const AgentApplication = () => {
               </CardHeader>
             )}
 
+            {/* Step 3 Header */}
+            {currentStep === 3 && (
+              <CardHeader className="bg-gradient-to-r from-green-600 to-teal-600 text-white">
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5" />
+                  <span>Step 3: Document Upload</span>
+                </CardTitle>
+                <CardDescription className="text-green-100">
+                  Upload your identification documents
+                </CardDescription>
+                <div className="mt-4">
+                  <div className="w-full bg-white/20 rounded-full h-2">
+                    <div className="bg-white h-2 rounded-full transition-all duration-300" style={{ width: '75%' }}></div>
+                  </div>
+                </div>
+              </CardHeader>
+            )}
+
             {/* Other Steps Header */}
-            {currentStep !== 2 && (
+            {currentStep !== 2 && currentStep !== 3 && (
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   {getStepIcon()}
@@ -325,7 +518,7 @@ const AgentApplication = () => {
                 </div>
               )}
 
-              {/* Step 2: New Redesigned Delivery Readiness */}
+              {/* Step 2: Delivery Readiness Assessment */}
               {currentStep === 2 && (
                 <div className="space-y-8">
                   {/* Essential Requirements Section */}
@@ -510,33 +703,63 @@ const AgentApplication = () => {
                 </div>
               )}
 
-              {/* Step 3: Document Upload */}
+              {/* Step 3: Enhanced Document Upload */}
               {currentStep === 3 && (
-                <div className="space-y-6">
-                  <div>
-                    <Label>Passport Photograph *</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600">Upload clear passport photo</p>
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        className="mt-2"
-                        onChange={(e) => handleFileUpload("passportPhoto", e.target.files?.[0] || null)}
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <div className="flex items-center space-x-3">
+                      <FileText className="w-6 h-6 text-green-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Required Documents</h3>
+                    </div>
+                    
+                    <div className="space-y-6">
+                      <FileUploadArea
+                        field="passportPhoto"
+                        label="Passport Photograph"
+                        helpText="Upload a clear, recent passport-style photo"
+                        file={formData.passportPhoto}
+                      />
+                      
+                      <FileUploadArea
+                        field="governmentId"
+                        label="Government-issued ID"
+                        helpText="National ID, Driver's License, or International Passport"
+                        file={formData.governmentId}
+                      />
+                      
+                      <FileUploadArea
+                        field="utilityBill"
+                        label="Utility Bill or Address Proof"
+                        helpText="Upload a recent utility bill, bank statement, or government correspondence showing your current address"
+                        file={formData.utilityBill}
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label>Government-issued ID *</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-600">National ID, Driver's License, or International Passport</p>
-                      <Input 
-                        type="file" 
-                        accept="image/*,application/pdf" 
-                        className="mt-2"
-                        onChange={(e) => handleFileUpload("governmentId", e.target.files?.[0] || null)}
-                      />
+
+                  {/* Address Verification Info */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                    <div className="flex items-center space-x-2 text-amber-900 font-semibold mb-3">
+                      <MapPin className="w-5 h-5" />
+                      <span>Address Verification</span>
+                    </div>
+                    <div className="text-amber-800 space-y-2">
+                      <p>• Document must show your current home address for delivery logistics and verification</p>
+                      <p>• Address on utility bill must match your residential address provided in Step 1</p>
+                      <p>• Document must be dated within the last 3 months</p>
+                    </div>
+                  </div>
+
+                  {/* File Requirements */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                    <div className="flex items-center space-x-2 text-blue-900 font-semibold mb-3">
+                      <CheckCircle className="w-5 h-5" />
+                      <span>File Requirements</span>
+                    </div>
+                    <div className="text-blue-800 space-y-1">
+                      <p>• Accepted formats: JPG, PNG, PDF only</p>
+                      <p>• Maximum file size: 5MB per document</p>
+                      <p>• Ensure documents are clear and readable</p>
+                      <p>• All three documents must be uploaded to proceed</p>
                     </div>
                   </div>
                 </div>
@@ -723,7 +946,7 @@ const AgentApplication = () => {
                     <ul className="text-sm text-amber-800 space-y-1">
                       <li>• At least 1 guarantor must reside in Lagos</li>
                       <li>• Emails must be valid, verifiable work emails</li>
-                      <li>• IDs and addresses will be used for AI-driven KYC validation</li>
+                      <li>• IDs and addresses will be used for automated KYC validation</li>
                     </ul>
                   </div>
                 </div>
@@ -745,6 +968,8 @@ const AgentApplication = () => {
                   className={`px-6 py-2 ${
                     currentStep === 2 
                       ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      : currentStep === 3
+                      ? "bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg hover:shadow-xl"
                       : ""
                   }`}
                 >
@@ -753,7 +978,7 @@ const AgentApplication = () => {
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       <span>Processing...</span>
                     </div>
-                  ) : currentStep === 4 ? "Submit Application" : currentStep === 2 ? "Continue Assessment" : "Next"}
+                  ) : currentStep === 4 ? "Submit Application" : currentStep === 2 ? "Continue Assessment" : currentStep === 3 ? "Upload Complete" : "Next"}
                 </Button>
               </div>
             </CardContent>
@@ -791,7 +1016,7 @@ const AgentApplication = () => {
           </h4>
           <ul className="text-sm text-blue-800 space-y-1">
             <li>• Your guarantors will receive verification emails</li>
-            <li>• AI will validate all information automatically</li>
+            <li>• Automated verification will validate all information</li>
             <li>• You'll get updates via WhatsApp and email</li>
             <li>• Processing typically takes 24–48 hours</li>
           </ul>
