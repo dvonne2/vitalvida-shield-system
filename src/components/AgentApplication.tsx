@@ -70,8 +70,8 @@ const AgentApplication = () => {
     hasDriversLicense: "",
     canHouseProducts: "",
     willUsePortal: "",
-    aware1500Payment: "",
-    aware2500MaxPayment: "",
+    aware1500Payment: "yes", // Set to "yes" by default since it's automatically accepted
+    aware2500MaxPayment: "yes", // Set to "yes" by default since it's automatically accepted
     deliveryCities: "",
     
     // Step 3
@@ -237,9 +237,9 @@ const AgentApplication = () => {
       case 1:
         return formData.fullName && formData.phone && formData.whatsapp && formData.city && formData.state;
       case 2:
+        // Simplified validation - we automatically set the payment awareness fields to "yes"
         return formData.hasSmartphone && formData.hasVehicle && formData.hasDriversLicense && 
-               formData.canHouseProducts && formData.willUsePortal && formData.aware1500Payment && 
-               formData.aware2500MaxPayment && formData.deliveryCities;
+               formData.canHouseProducts && formData.willUsePortal && formData.deliveryCities;
       case 3:
         return formData.passportPhoto && formData.governmentId && formData.utilityBill;
       case 4:
@@ -679,26 +679,6 @@ const AgentApplication = () => {
                       />
                       <p className="text-sm text-slate-600 mt-2 italic">List all cities where you're available to make deliveries</p>
                     </div>
-                  </div>
-
-                  {/* Hidden fields for backward compatibility */}
-                  <div className="hidden">
-                    <RadioGroup 
-                      value={formData.aware1500Payment} 
-                      onValueChange={(value) => handleInputChange("aware1500Payment", "yes")}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="payment1500-yes" />
-                      </div>
-                    </RadioGroup>
-                    <RadioGroup 
-                      value={formData.aware2500MaxPayment} 
-                      onValueChange={(value) => handleInputChange("aware2500MaxPayment", "yes")}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id="payment2500-yes" />
-                      </div>
-                    </RadioGroup>
                   </div>
                 </div>
               )}
